@@ -3,7 +3,6 @@ package com.bn.orders.controllers;
 
 import com.bn.orders.models.PedidoModel;
 import com.bn.orders.services.PedidoService;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,15 +35,26 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<PedidoModel>> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<PedidoModel> buscarPorId(@PathVariable Long id) {
         Optional<PedidoModel> request = pedidoService.buscarPorId(id);
-        return ResponseEntity.ok().body(request);
+
+        if(request.isPresent()) {
+            return ResponseEntity.ok(request.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletarPedido(@PathVariable Long id) {
-        pedidoService.deletarPedido(id);
-        return ResponseEntity.noContent().build();
+        Optional<PedidoModel> request = pedidoService.buscarPorId(id);
+
+        if(request.isPresent()) {
+            pedidoService.deletarPedido(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
